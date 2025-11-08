@@ -1,55 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Zappar Three.js Marker Example</title>
-    <script src="https://libs.zappar.com/zappar-threejs/2.3.3/zappar-threejs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <title>Zappar + Three.js Test</title>
+
+    <!-- Library Three.js -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+
+    <!-- Library ZapparThree (pastikan urutannya setelah three.js) -->
+    <script src="https://libs.zappar.com/zappar-threejs/2.1.0/zappar-threejs.min.js"></script>
   </head>
-  <body style="margin: 0; overflow: hidden">
+
+  <body style="margin: 0; overflow: hidden;">
     <script>
-      // Inisialisasi renderer
+      console.log("🚀 Script dimulai...");
+
+      // Cek apakah ZapparThree berhasil dimuat
+      if (typeof ZapparThree === "undefined") {
+        console.error("❌ ZapparThree belum terdeteksi!");
+      } else {
+        console.log("✅ ZapparThree berhasil dimuat!");
+      }
+
+      // Inisialisasi scene dan camera
+      const scene = new THREE.Scene();
+      const camera = new ZapparThree.Camera();
+
       const renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
       document.body.appendChild(renderer.domElement);
 
-      // Buat scene
-      const scene = new THREE.Scene();
+      // Tambahkan background kamera
+      const manager = new ZapparThree.LoadingManager();
+      const zapparCamera = new ZapparThree.Camera();
+      const background = new ZapparThree.CameraBackgroundMesh(zapparCamera, manager);
+      scene.add(background);
 
-      // Buat kamera Zappar
-      const camera = new ZapparThree.Camera();
-      scene.add(camera);
+      // Tambahkan kotak
+      const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+      const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+      const cube = new THREE.Mesh(geometry, material);
+      scene.add(cube);
 
-      // Setup permission kamera
-      ZapparThree.permissionRequestUI().then(granted => {
-        if (granted) ZapparThree.permissionGranted();
-        else ZapparThree.permissionDeniedUI();
-      });
-
-      // Buat tracker dari file marker .zpt
-      const tracker = new ZapparThree.ImageTrackerLoader().load("kartu-marker.zpt");
-
-      // Buat anchor untuk menempelkan objek ke marker
-      const trackerGroup = new ZapparThree.ImageAnchorGroup(camera, tracker);
-      scene.add(trackerGroup);
-
-      // Tambah objek 3D
-      const box = new THREE.Mesh(
-        new THREE.BoxGeometry(0.5, 0.5, 0.5),
-        new THREE.MeshNormalMaterial()
-      );
-      trackerGroup.add(box);
-
-      // Loop render
-      const clock = new THREE.Clock();
+      // Animasi
       function animate() {
         requestAnimationFrame(animate);
-        const delta = clock.getDelta();
-        box.rotation.y += delta; // biar mutar
-
-        camera.updateFrame(renderer);
-        renderer.render(scene, camera);
+        cube.rotation.x += 0.01;
+        cube.rotation.y += 0.01;
+        renderer.render(scene, zapparCamera);
       }
+
       animate();
     </script>
   </body>
